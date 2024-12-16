@@ -1,0 +1,9 @@
+[package]
+name = "aoc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+regex = "1"
+queues = "1.0.2"
+num = "0.4"
