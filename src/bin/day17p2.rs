@@ -1,4 +1,4 @@
-use std::fs;
+use std::{collections::HashMap, fs};
 fn main() {
     let f = fs::read_to_string("day17.txt").unwrap();
     let lines: Vec<&str> = f.split("\n").collect();
@@ -23,114 +23,139 @@ fn main() {
         return -1;
     };
 
-    for aa in 0..1167334280 {
-        let mut a = aa;
-        let mut b = 0;
-        let mut c = 0;
-        let mut ip: usize = 0;
-        let mut valid: bool = true;
+    let mut hm: HashMap<i32, u128> = HashMap::new();
 
-        let mut res: Vec<i32> = vec![];
+    let mut a: u128 = 0;
 
-        while ip < program.len() {
-            let ins = program[ip];
-            if ins == 0 {
-                let r = combo(program[ip+1], a, b, c);
-                if r == -1 {
-                    valid = false;
-                    break;
-                }
-                if r >= 0 {
-                    a = a / 2_i32.pow(r as u32);
-                }
-                else {
-                    a = a * 2_i32.pow((-r) as u32);
-                }
-                
-                ip += 2;
-            }
-            else if ins == 1 {
-                b = b ^ program[ip+1];
-                ip += 2;
-            }
-            else if ins == 2 {
-                let res = combo(program[ip+1], a, b, c);
-                if res == -1 {
-                    valid = false;
-                    break;
-                }
-                b = res % 8;
-                ip += 2;
-            }
-            else if ins == 3 {
-                if a == 0 {
-                    ip += 2;
-                }
-                else {
-                    ip = program[ip+1] as usize;
-                }
-            }
-            else if ins == 4 {
-                b = b ^ c;
-                ip += 2;
-            }
-            else if ins == 5 {
-                let r = combo(program[ip+1], a, b, c);
-                if r == -1 {
-                    valid = false;
-                    break;
-                }
-                res.push(r % 8);
-                if res.len() > program.len() {
-                    valid=false;
-                    break;
-                }
-                ip += 2;
-            }
-            else if ins == 6 {
-                let r = combo(program[ip+1], a, b, c);
-                if r == -1 {
-                    valid=false;
-                    break;
-                }
-                if r >= 0 {
-                    b = a / 2_i32.pow(r as u32);
-                }
-                else {
-                    b = a * 2_i32.pow((-r) as u32);
-                }
-                ip += 2;
-            }
-            else if ins == 7 {
-                let r = combo(program[ip+1], a, b, c);
-                if r == -1 {
-                    valid=false;
-                    break;
-                }
-                if r >= 0 {
-                    c = a / 2_i32.pow(r as u32);
-                }
-                else {
-                    c = a * 2_i32.pow((-r) as u32);
-                }
-                ip += 2;
-            }
-
-            if res.len() > 0 && res[res.len()-1] != program[res.len()-1] {
-                valid = false;
-                break;
-            }
-
+    // [(a%8 xor 5) xor floor(a / 2^(a%8 xor 2))]
+    for i in 0..8 {
+        let v1 = (i%8) ^ 5;
+        let v2 = i / 2_u32.pow((i%8) ^ 2);
+        let v = v1 ^ v2;
+        if i != 2 {
+            hm.insert( v as i32, i as u128);
         }
-        if valid && res.len() == program.len() {
-            println!("{aa} valid!!");
-        }
+        println!("{i} {v}");
+
         
-        // for i in 0..res.len() {
-        //     print!("{},",res[i]);
-        // }
-        // println!("----");
     }
+
+    for i in 0..program.len()-1 {
+        let idx = program.len()-1-i;
+        let target_val: u128 = *hm.get(&program[idx]).unwrap();
+        a = a * 8_u128 + target_val;
+        println!("{}",a);
+    }
+    println!("{}",a*8_u128);
+
+    // for aa in 0..1167334280 {
+    //     let mut a = aa;
+    //     let mut b = 0;
+    //     let mut c = 0;
+    //     let mut ip: usize = 0;
+    //     let mut valid: bool = true;
+
+    //     let mut res: Vec<i32> = vec![];
+
+    //     while ip < program.len() {
+    //         let ins = program[ip];
+    //         if ins == 0 {
+    //             let r = combo(program[ip+1], a, b, c);
+    //             if r == -1 {
+    //                 valid = false;
+    //                 break;
+    //             }
+    //             if r >= 0 {
+    //                 a = a / 2_i32.pow(r as u32);
+    //             }
+    //             else {
+    //                 a = a * 2_i32.pow((-r) as u32);
+    //             }
+                
+    //             ip += 2;
+    //         }
+    //         else if ins == 1 {
+    //             b = b ^ program[ip+1];
+    //             ip += 2;
+    //         }
+    //         else if ins == 2 {
+    //             let res = combo(program[ip+1], a, b, c);
+    //             if res == -1 {
+    //                 valid = false;
+    //                 break;
+    //             }
+    //             b = res % 8;
+    //             ip += 2;
+    //         }
+    //         else if ins == 3 {
+    //             if a == 0 {
+    //                 ip += 2;
+    //             }
+    //             else {
+    //                 ip = program[ip+1] as usize;
+    //             }
+    //         }
+    //         else if ins == 4 {
+    //             b = b ^ c;
+    //             ip += 2;
+    //         }
+    //         else if ins == 5 {
+    //             let r = combo(program[ip+1], a, b, c);
+    //             if r == -1 {
+    //                 valid = false;
+    //                 break;
+    //             }
+    //             res.push(r % 8);
+    //             if res.len() > program.len() {
+    //                 valid=false;
+    //                 break;
+    //             }
+    //             ip += 2;
+    //         }
+    //         else if ins == 6 {
+    //             let r = combo(program[ip+1], a, b, c);
+    //             if r == -1 {
+    //                 valid=false;
+    //                 break;
+    //             }
+    //             if r >= 0 {
+    //                 b = a / 2_i32.pow(r as u32);
+    //             }
+    //             else {
+    //                 b = a * 2_i32.pow((-r) as u32);
+    //             }
+    //             ip += 2;
+    //         }
+    //         else if ins == 7 {
+    //             let r = combo(program[ip+1], a, b, c);
+    //             if r == -1 {
+    //                 valid=false;
+    //                 break;
+    //             }
+    //             if r >= 0 {
+    //                 c = a / 2_i32.pow(r as u32);
+    //             }
+    //             else {
+    //                 c = a * 2_i32.pow((-r) as u32);
+    //             }
+    //             ip += 2;
+    //         }
+
+    //         if res.len() > 0 && res[res.len()-1] != program[res.len()-1] {
+    //             valid = false;
+    //             break;
+    //         }
+
+    //     }
+    //     if valid && res.len() == program.len() {
+    //         println!("{aa} valid!!");
+    //     }
+        
+    //     // for i in 0..res.len() {
+    //     //     print!("{},",res[i]);
+    //     // }
+    //     // println!("----");
+    // }
 
     
 
